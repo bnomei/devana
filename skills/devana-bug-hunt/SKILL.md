@@ -130,7 +130,10 @@ Tie breakers: security or private data -> `P0`; data integrity -> at least `P1`;
 
 Use Arrows when subagents are available. Arrows propose candidates only; lead Devana validates, deduplicates, prioritizes, and writes reports.
 
-- Give each Arrow one trail and a narrow scope.
+- Give each Arrow one trail, a narrow scope, and a precise task.
+- Translate the trail into concrete hit points: exact symbols, files, call edges, guards, state transitions, boundary values, or invariants to inspect.
+- Do not send only an abstract trail label. The Arrow should know what that trail means for this repository.
+- Include known duplicates or already-rejected leads in `Do NOT re-report` when available.
 - Tell Arrows not to write reports.
 - Require proof shape, counterexample, counterevidence checked, and file/line locations.
 - Drop any candidate that lacks a reachable runtime behavior defect.
@@ -138,10 +141,16 @@ Use Arrows when subagents are available. Arrows propose candidates only; lead De
 Arrow prompt shape:
 
 ```text
-You are an Arrow for Devana. Trail: <trail>. Scope: <paths>.
+You are an Arrow for Devana.
+
+Trail: <trail>
+Scope: <paths>
+Precise task: <repo-specific hit list derived from the trail: symbols/files/callers/guards/state transitions/boundaries/invariants to inspect>
+
 Find only source-visible semantic runtime bugs. No style, lint, maintainability, architecture, missing tests, or simplification comments.
 Do not run tests, builds, installs, services, migrations, or network calls.
 Use available structural tools if helpful: rg, ast-grep, semantic indexers, call graphs, type information.
+Do NOT re-report: <known duplicates or rejected leads, if any>.
 Return candidates only. For each: title, likely P0-P3, location, violated invariant/contract, oracle, counterexample, proof shape, proof summary, counterevidence checked.
 If no strong candidate exists, return "no candidate".
 ```
