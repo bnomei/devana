@@ -1,0 +1,4 @@
+interface:
+  display_name: "Devana Bug Hunt"
+  short_description: "Semantic runtime bug hunts"
+  default_prompt: "Use $devana-bug-hunt to hunt only source-visible runtime bugs; do not run tests, builds, installs, services, migrations, or network calls; report only actionable findings."
