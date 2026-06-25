@@ -26,6 +26,7 @@ Find the smallest reachable counterexample that violates an invariant, contract,
 - Static-only: do not run tests, builds, package installs, migrations, services, or network calls.
 - Scheduled use: Codex App Automation or Claude Code `/loop`.
 - Template: read `references/report-template.md` only when writing a report.
+- Trail playbook: read `references/trail-playbook.md` before sending Arrows or when a named trail needs more concrete probes.
 - Scope/report count: use judgment. Stop when strong candidates are exhausted, remaining leads are weak, or the user/system stops the run.
 
 ## Invocation
@@ -57,7 +58,7 @@ When `EXHAUSTIVE=true` (`--all`), actively hunt every trail in ## Trails before 
 2. Resolve project root and destination. Create `.devana/` only when writing.
 3. Scan existing report headers and summaries with the duplicate commands below.
 4. Read repo guidance and shape: `AGENTS.md`, README, config, source roots, entry points, data models, recent diffs if available.
-5. Map entry points, authority boundaries, stateful components, persistence, caches, queues/jobs, parsers/serializers, retries, and external side effects.
+5. Map entry points, authority boundaries, stateful components, persistence, caches, queues/jobs, parsers/serializers, retries, idempotency, transactions, migrations, feature flags, config/env, and external side effects.
 6. Follow `TRAILS` yourself, or send Arrows when subagents are useful.
 7. For each candidate, validate with the loop below. Drop weak candidates aggressively.
 8. Write only non-duplicate reports that pass the report gate.
@@ -158,9 +159,11 @@ Tie breakers: security or private data -> `P0`; data integrity -> at least `P1`;
 Use Arrows when subagents are available. Arrows propose candidates only; lead Devana validates, deduplicates, prioritizes, and writes reports.
 
 - When using Arrows, spawn one per trail in `TRAILS`. When `EXHAUSTIVE=true`, do not skip a trail.
-- Give each Arrow one trail, a narrow scope, and a precise task.
-- Translate the trail into concrete hit points: exact symbols, files, call edges, guards, state transitions, boundary values, or invariants to inspect.
-- Do not send only an abstract trail label. The Arrow should know what that trail means for this repository.
+- Before writing any Arrow prompt, read `references/trail-playbook.md`.
+- Lead Devana must translate the trail playbook into repo-specific prompt context before delegation.
+- Give each Arrow one trail, a narrow scope, and a precise task built from exact repo evidence.
+- The Arrow prompt must name concrete files, symbols, entry points, call edges, guards, state transitions, boundary values, invariants, config keys, cache keys, queues/jobs, or trust boundaries to inspect.
+- Do not send only an abstract trail label. Do not expect the Arrow to infer the trail context. The Arrow should receive the already-translated hit list.
 - Include known duplicates or already-rejected leads in `Do NOT re-report` when available.
 - Tell Arrows not to write reports.
 - Require proof shape, counterexample, counterevidence checked, and file/line locations.
@@ -173,12 +176,16 @@ You are an Arrow for Devana.
 
 Trail: <trail>
 Scope: <paths>
-Precise task: <repo-specific hit list derived from the trail: symbols/files/callers/guards/state transitions/boundaries/invariants to inspect>
+Repo context: <short map of relevant files/symbols/entrypoints/data models/state/config/cache/queue/trust boundaries already identified by lead Devana>
+Precise task: <repo-specific hit list derived from references/trail-playbook.md: exact symbols/files/callers/guards/state transitions/boundary values/invariants/config keys/cache keys/queues/trust boundaries to inspect>
+Expected proof: <proof shape to return: dataflow trace/control-flow trace/counterexample value/contract mismatch/cross-entry mismatch/state transition mismatch>
+Counterevidence to check: <guards, framework behavior, schema/type guarantees, rollback, cleanup, canonicalization, auth middleware, idempotency, or config that may prevent the bug>
 
 Find only source-visible semantic runtime bugs. No style, lint, maintainability, architecture, missing tests, or simplification comments.
 Do not run tests, builds, installs, services, migrations, or network calls.
 Use available structural tools if helpful: rg, ast-grep, semantic indexers, call graphs, type information.
 Do NOT re-report: <known duplicates or rejected leads, if any>.
+Before returning a candidate, state the strongest reason it might be false and what evidence you checked.
 Return candidates only. For each: title, likely P0-P3, location, violated invariant/contract, oracle, counterexample, proof shape, proof summary, counterevidence checked.
 If no strong candidate exists, return "no candidate".
 ```
