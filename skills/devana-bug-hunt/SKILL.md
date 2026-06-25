@@ -1,6 +1,8 @@
 ---
 name: devana-bug-hunt
 description: Finds source-visible semantic runtime bugs without running tests or builds. Use for repository bug hunts from an agent, Codex automation, or Claude loop that should report actionable correctness, security, dataflow, state/lifecycle, API-contract, validation, cache/persistence, or error-path bugs, not style, lint, architecture, maintainability, or missing-test feedback.
+when-to-use: Use when the user runs /devana-bug-hunt or asks for a Devana bug hunt.
+argument-hint: "[<trail> | --all]"
 ---
 
 # Devana Bug Hunt
@@ -26,15 +28,39 @@ Find the smallest reachable counterexample that violates an invariant, contract,
 - Template: read `references/report-template.md` only when writing a report.
 - Scope/report count: use judgment. Stop when strong candidates are exhausted, remaining leads are weak, or the user/system stops the run.
 
+## Invocation
+
+```
+/devana-bug-hunt
+/devana-bug-hunt inside-out-paths
+/devana-bug-hunt boundaries-oracles
+/devana-bug-hunt inside-out-paths dataflow-boundaries
+/devana-bug-hunt --all
+```
+
+### Argument parsing
+
+Parse the argument string in order; first match wins.
+
+1. **Empty / whitespace-only** → `TRAILS=all`, `EXHAUSTIVE=false`
+2. **`--all`** → `TRAILS=all`, `EXHAUSTIVE=true`
+3. **One or more trail slugs** → `TRAILS=<list>`, `EXHAUSTIVE=false`; each token must be one of: `inside-out-paths`, `outside-in-entrypoints`, `invariants-contracts`, `boundaries-oracles`, `dataflow-boundaries`, `state-lifecycle`, `contracts-errors`, `cache-persistence`, `security-boundaries`
+4. **Unknown token** → stop and list valid trails
+
+When `TRAILS=all`, use every trail in ## Trails. Otherwise hunt only the listed trails.
+
+When `EXHAUSTIVE=true` (`--all`), actively hunt every trail in ## Trails before finishing. Do not stop because one trail looks quiet or weak leads remain elsewhere. Send one Arrow per trail when subagents are available; otherwise work each trail in turn. Finish only after all nine trails have been covered.
+
 ## Workflow
 
-1. Resolve project root and destination. Create `.devana/` only when writing.
-2. Scan existing report headers and summaries with the duplicate commands below.
-3. Read repo guidance and shape: `AGENTS.md`, README, config, source roots, entry points, data models, recent diffs if available.
-4. Map entry points, authority boundaries, stateful components, persistence, caches, queues/jobs, parsers/serializers, retries, and external side effects.
-5. Follow the trails below yourself, or send Arrows when subagents are useful.
-6. For each candidate, validate with the loop below. Drop weak candidates aggressively.
-7. Write only non-duplicate reports that pass the report gate.
+1. Parse invocation args; set `TRAILS` and `EXHAUSTIVE`.
+2. Resolve project root and destination. Create `.devana/` only when writing.
+3. Scan existing report headers and summaries with the duplicate commands below.
+4. Read repo guidance and shape: `AGENTS.md`, README, config, source roots, entry points, data models, recent diffs if available.
+5. Map entry points, authority boundaries, stateful components, persistence, caches, queues/jobs, parsers/serializers, retries, and external side effects.
+6. Follow `TRAILS` yourself, or send Arrows when subagents are useful.
+7. For each candidate, validate with the loop below. Drop weak candidates aggressively.
+8. Write only non-duplicate reports that pass the report gate.
 
 ## Hunt Targets
 
@@ -131,6 +157,7 @@ Tie breakers: security or private data -> `P0`; data integrity -> at least `P1`;
 
 Use Arrows when subagents are available. Arrows propose candidates only; lead Devana validates, deduplicates, prioritizes, and writes reports.
 
+- When using Arrows, spawn one per trail in `TRAILS`. When `EXHAUSTIVE=true`, do not skip a trail.
 - Give each Arrow one trail, a narrow scope, and a precise task.
 - Translate the trail into concrete hit points: exact symbols, files, call edges, guards, state transitions, boundary values, or invariants to inspect.
 - Do not send only an abstract trail label. The Arrow should know what that trail means for this repository.
