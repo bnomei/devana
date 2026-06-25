@@ -114,7 +114,8 @@ For each candidate:
 5. Counterexample: give a concrete value, state, event order, retry, duplicate delivery, cancellation, timeout, or failure branch.
 6. Proof check: map the counterexample to exact code locations.
 7. Counterevidence: look for guards, type guarantees, rollback, cleanup, framework behavior, or config that prevents it.
-8. Report only if the bug remains reachable and actionable.
+8. Self-challenge: state the strongest reason this might be false, then check the evidence that rules it out.
+9. Report only if the bug remains reachable and actionable.
 
 Do not invent hidden product intent. If intent is not encoded in code, docs, tests, schema, or nearby callers, omit the finding or keep it as an open question outside the report stream.
 
@@ -141,6 +142,7 @@ Write only when all are true:
 - at least one proof shape
 - impact is user, data, security, availability, or correctness
 - counterevidence checked
+- strongest false-positive reason checked
 - no obvious duplicate
 
 ## Priority
@@ -213,7 +215,7 @@ Avoid obvious repeats cheaply:
 
 ```bash
 for f in .devana/*.md; do head -n 3 "$f"; tail -n 2 "$f"; done
-rg -n "^(DEVANA-FINDING|Location:|DEVANA-KEY:|DEVANA-SUMMARY:)" .devana/*.md
+rg -n "^(DEVANA-FINDING|DEVANA-STATE|DEVANA-KEY|DEVANA-SUMMARY):" .devana/*.md
 ```
 
 If a likely duplicate exists, do not write a new report.
@@ -242,8 +244,8 @@ Status values: `open`, `fixed`, `invalid`, `stale`, `duplicate`, `wontfix`.
 Update rules:
 
 - Preserve line 1 and the original finding body.
-- Edit line 2 `Status: ...`; update the final `DEVANA-SUMMARY:` status to match.
-- Keep line 3 and `DEVANA-KEY:` stable unless the same finding moved.
+- Edit line 2 `DEVANA-STATE: ...`; update the final `DEVANA-SUMMARY:` status/priority/confidence prefix to match.
+- Keep both `DEVANA-KEY:` lines stable unless the same finding moved.
 - Append or update `## Status Notes` with a dated note, evidence checked, and any fix/PR/issue reference.
 - Mark `fixed` only after the original counterexample is blocked.
 

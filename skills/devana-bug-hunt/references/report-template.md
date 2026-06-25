@@ -1,6 +1,6 @@
 DEVANA-FINDING: v1
-Priority: P2 | Confidence: medium | Security-sensitive: no | Status: open
-Location: path/to/file.ext:123 | Slug: short-slug
+DEVANA-STATE: open | P2 | medium | security=no
+DEVANA-KEY: path/to/file.ext:123 | short-slug
 
 # Short Title
 
@@ -30,7 +30,7 @@ List the dataflow trace, control-flow trace, counterexample value, contract mism
 
 ## Counterevidence Checked
 
-List guards, callers, config, framework behavior, transactions, cleanup, or other evidence checked that does not prevent the bug.
+List guards, callers, config, framework behavior, transactions, cleanup, and the strongest reason this might be false. Explain why that counterevidence does not prevent the bug.
 
 ## Suggested Next Step
 
@@ -38,11 +38,11 @@ Describe the smallest useful human follow-up.
 
 ## Agent Handoff
 
-After working this report, preserve the original finding body. Update line 2 `Status: ...` and the final `DEVANA-SUMMARY:` status. Use one of: `open`, `fixed`, `invalid`, `stale`, `duplicate`, `wontfix`. Add dated notes below with the evidence checked.
+After working this report, preserve the original finding body. Update line 2 `DEVANA-STATE: ...` and the final `DEVANA-SUMMARY:` status/priority/confidence prefix. Use one of: `open`, `fixed`, `invalid`, `stale`, `duplicate`, `wontfix`. Keep `DEVANA-KEY:` stable unless the same finding moved. Add dated notes below with evidence checked.
 
 ## Status Notes
 
 - YYYY-MM-DD: open by Devana. Initial report written from static source inspection.
 
-DEVANA-KEY: path/to/file.ext:123 | P2 | short-slug
-DEVANA-SUMMARY: Status=open | P2 medium path/to/file.ext:123 - One sentence explaining the bug and likely impact.
+DEVANA-KEY: path/to/file.ext:123 | short-slug
+DEVANA-SUMMARY: open | P2 | medium | One sentence explaining the bug and likely impact.

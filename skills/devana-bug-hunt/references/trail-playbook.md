@@ -13,6 +13,27 @@ Before sending an Arrow, lead Devana must translate the selected trail into a re
 
 Do not send an Arrow a bare trail label and expect it to infer this context.
 
+## Postmortem Lens
+
+Use this as a cross-cutting lens when a repo has production workflows, scheduled automation, distributed components, or release/config surfaces. It is not a separate trail; fold the relevant probes into the selected trail prompt.
+
+Look for incident-shaped bug clusters:
+
+- config drift, environment drift, feature-flag rollout mismatch
+- stale cache, stale derived state, missing invalidation, cache stampede
+- partial failure, retry storm, timeout path, fallback changing semantics
+- dependency behavior mismatch, API/schema/version drift
+- missing guardrail at deploy, migration, startup, queue, or job boundary
+- observability gap that hides success-as-failure or failure-as-success
+
+Prompt use: name the specific config key, flag, dependency, cache, migration, job, or external service in the Arrow prompt. Ask for a concrete event sequence, not a general reliability concern.
+
+Good proof: incident-style timeline showing trigger -> missed guardrail -> wrong runtime state or user-visible impact.
+
+Reject when: the issue is only poor observability or process hygiene without a concrete reachable bad behavior.
+
+Keywords: incident, postmortem, rollout, drift, flag, stale, timeout, retry, fallback, dependency, migration, guardrail, alert.
+
 ## inside-out-paths
 
 Start from: core mutators, aggregate roots, reducers, parsers, state machines, transaction coordinators, resource owners, business-rule modules.
