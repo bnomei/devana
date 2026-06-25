@@ -7,9 +7,53 @@
 [![Discord](https://flat.badgen.net/badge/discord/bnomei?color=7289da&icon=discord&label)](https://discordapp.com/users/bnomei)
 [![Buymecoffee](https://flat.badgen.net/badge/icon/donate?icon=buymeacoffee&color=FF813F&label)](https://www.buymeacoffee.com/bnomei)
 
-Use `devana-bug-hunt` as a semantic bug hunter, not as a normal code review.
+Use `devana-bug-hunt` as a semantic bug hunter, not as a normal code review. It reads source code for reachable runtime defects in contracts, invariants, boundaries, state, dataflow, persistence, and failure paths.
 
-Keep devana focused on source-visible runtime bugs only: no tests, builds, installs, services, or network. Reports are written under `.devana/`; the first 3 lines and last 2 lines are deterministic so agents can scan reports with `head` and `tail`.
+Devana is useful when you want low-noise findings that are backed by a concrete counterexample, not style feedback or generic quality advice. It can run as a one-shot hunt, a goal-driven session, or a scheduled loop, and it stays static-only: no tests, builds, installs, services, or network.
+
+```text
+┌─────────────────────────────────────────────┐
+│ find candidates                             │
+└─────────────────────┬───────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────┐
+│ evaluate invariant, oracle, proof, evidence │
+└─────────────────────┬───────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────┐
+│ reachable, actionable, non-duplicate?       │
+└──────────────┬────────────────────┬─────────┘
+               │ no                 │ yes
+               ▼                    ▼
+┌────────────────────────────┐  ┌───────────────────────────────┐
+│ discard lead, keep hunting │  │ write report in .devana/      │
+└────────────────────────────┘  └───────────────────────────────┘
+```
+
+## What Devana Creates
+
+When Devana finds a reportable bug, it creates an append-only Markdown report under `.devana/`:
+
+```text
+.devana/YYYYMMDDTHHMMSSZ-PN-short-slug.md
+```
+
+Each report records the affected location, priority, confidence, violated invariant or contract, oracle, counterexample, proof, counterevidence checked, and suggested next step. The first 3 lines and last 2 lines are deterministic so agents can scan reports with `head`, `tail`, or `rg`.
+
+See the [report template](skills/devana-bug-hunt/references/report-template.md) for the exact shape.
+
+## Using Reports
+
+After Devana writes a report, point your normal coding agent at the file and ask it to validate or fix that specific finding:
+
+```text
+Please work this Devana report: .devana/YYYYMMDDTHHMMSSZ-PN-short-slug.md
+Validate it against the current code, fix it if it is still valid, and update the report status.
+```
+
+The agent should read the full report, inspect the current code, then either implement the smallest useful fix or mark the report as `fixed`, `invalid`, `stale`, `duplicate`, or `wontfix`. The deterministic header and trailer make report queues cheap to scan, while the full Markdown body keeps enough proof for a normal agent to pick up the work without needing Devana.
 
 ## Install
 
@@ -41,17 +85,17 @@ Use /devana-bug-hunt on this project.
 
 ## Arrows and Trails
 
-Trails are devana's hunt lenses. Pass them as slash-command arguments to focus the hunt, or use `--all` when you want every lens worked before devana stops.
+Trails are hunt lenses. Use no argument for the default all-trail hunt, pass one or more slugs to focus it, or use `--all` to require every trail to be actively covered before devana stops.
 
 ```text
-/devana-bug-hunt                              # all trails; stop when strong candidates are exhausted
-/devana-bug-hunt inside-out-paths             # one trail
-/devana-bug-hunt boundaries-oracles            # one trail
-/devana-bug-hunt inside-out-paths dataflow-boundaries   # multiple trails
-/devana-bug-hunt --all                        # all trails; do not stop until each trail has been actively hunted
+/devana-bug-hunt
+/devana-bug-hunt inside-out-paths
+/devana-bug-hunt boundaries-oracles
+/devana-bug-hunt inside-out-paths dataflow-boundaries
+/devana-bug-hunt --all
 ```
 
-Trail slugs (the argument tokens):
+Trail slugs:
 
 - `inside-out-paths`
 - `outside-in-entrypoints`
@@ -63,35 +107,13 @@ Trail slugs (the argument tokens):
 - `cache-persistence`
 - `security-boundaries`
 
-`--all` is stricter than a bare `/devana-bug-hunt`. It means exhaust every trail above — map the repo through each lens, send Arrows per trail when subagents are available, and only finish when all nine have been covered. Do not bail early because one trail looks quiet.
-
-You can still steer scope in the prompt (topic, path, subsystem). Trail args choose the lens; free text narrows where to point it.
-
-```text
-Use /devana-bug-hunt on this project. Focus auth and ownership.
-```
-
-```text
-Use /devana-bug-hunt outside-in-entrypoints on this project.
-```
+Free text can narrow the scope:
 
 ```text
 Use /devana-bug-hunt cache-persistence on src/api.
 ```
 
-When subagents are available, devana can send Arrows: narrow scouts that inspect one trail or scope, return candidates, and leave validation, deduplication, and report writing to lead devana.
-
-What each trail hunts:
-
-- `inside-out-paths`: core functions outward to reachable bad states.
-- `outside-in-entrypoints`: routes, CLI commands, jobs, webhooks, UI actions, public APIs, or SDK methods inward.
-- `invariants-contracts`: docs, schemas, callers, callees, units, optionality, ownership, errors, idempotency, and returns.
-- `boundaries-oracles`: empty, zero, min/max, duplicate, reordered, missing, null, expired, cancelled, retried, and just-outside values.
-- `dataflow-boundaries`: input or state through transforms to sinks.
-- `state-lifecycle`: initialization, transitions, cleanup, retries, cancellation, subscriptions, timers, workers, sessions, locks, and disposal.
-- `contracts-errors`: adapters, implementations, request/response shapes, return values, errors, nullability, timeouts, and partial failure.
-- `cache-persistence`: cache keys, canonicalization, invalidation, transactions, stale reads, and background jobs.
-- `security-boundaries`: auth, ownership, tenant/project/user scoping, paths, injection, secrets, deserialization, and unsafe policy fallbacks.
+When subagents are available, devana may send one Arrow per trail. Arrows scout narrow scopes and return candidates; lead devana validates, deduplicates, prioritizes, and writes reports.
 
 ## `/goal` use devana
 
