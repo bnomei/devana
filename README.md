@@ -67,7 +67,7 @@ Or via Skills.sh:
 npx skills add bnomei/devana --skill devana-bug-hunt
 ```
 
-## Hunt Yourself
+## Skill of Hunting Bugs manually
 
 Run a one-shot hunt when you want the current project inspected now.
 
