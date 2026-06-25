@@ -22,7 +22,7 @@ Find the smallest reachable counterexample that violates an invariant, contract,
 ## Operating Rules
 
 - Destination: `.devana/`.
-- `.devana/` reports are append-only unless the user explicitly asks to remove them. Goal scratch paths and verifier git-cleanliness requirements never justify deleting `.devana/`.
+- `.devana/` reports are durable records. Do not delete them unless the user explicitly asks. Preserve the original finding body; status updates may edit the deterministic header/trailer and append status notes.
 - Static-only: do not run tests, builds, package installs, migrations, services, or network calls.
 - Scheduled use: Codex App Automation or Claude Code `/loop`.
 - Template: read `references/report-template.md` only when writing a report.
@@ -220,6 +220,25 @@ Filename:
 ```
 
 Use UTC when possible. Keep slug lowercase ASCII, hyphen-separated, under 8 words.
+
+## Handling Existing Reports
+
+When a user points you at a `.devana/*.md` report, treat it as a focused work item, not a new hunt.
+
+1. Read the report and inspect the current code, callers, guards, config, and relevant framework behavior.
+2. Validate the original counterexample.
+3. If valid and the user asked for a fix, make the smallest change that restores the violated invariant or contract.
+4. Update the report status.
+
+Status values: `open`, `fixed`, `invalid`, `stale`, `duplicate`, `wontfix`.
+
+Update rules:
+
+- Preserve line 1 and the original finding body.
+- Edit line 2 `Status: ...`; update the final `DEVANA-SUMMARY:` status to match.
+- Keep line 3 and `DEVANA-KEY:` stable unless the same finding moved.
+- Append or update `## Status Notes` with a dated note, evidence checked, and any fix/PR/issue reference.
+- Mark `fixed` only after the original counterexample is blocked.
 
 ## Finish
 

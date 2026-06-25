@@ -36,5 +36,13 @@ List guards, callers, config, framework behavior, transactions, cleanup, or othe
 
 Describe the smallest useful human follow-up.
 
+## Agent Handoff
+
+After working this report, preserve the original finding body. Update line 2 `Status: ...` and the final `DEVANA-SUMMARY:` status. Use one of: `open`, `fixed`, `invalid`, `stale`, `duplicate`, `wontfix`. Add dated notes below with the evidence checked.
+
+## Status Notes
+
+- YYYY-MM-DD: open by Devana. Initial report written from static source inspection.
+
 DEVANA-KEY: path/to/file.ext:123 | P2 | short-slug
-DEVANA-SUMMARY: P2 medium path/to/file.ext:123 - One sentence explaining the bug and likely impact.
+DEVANA-SUMMARY: Status=open | P2 medium path/to/file.ext:123 - One sentence explaining the bug and likely impact.
