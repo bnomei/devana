@@ -2,7 +2,6 @@
 
 [![skills.sh](https://skills.sh/b/bnomei/devana)](https://skills.sh/bnomei/devana)
 [![GitHub Release](https://img.shields.io/github/v/release/bnomei/devana?label=release)](https://github.com/bnomei/devana/releases)
-[![GitHub Tag](https://img.shields.io/github/v/tag/bnomei/devana?label=tag)](https://github.com/bnomei/devana/tags)
 [![GitHub Downloads](https://img.shields.io/github/downloads/bnomei/devana/total?label=downloads)](https://github.com/bnomei/devana/releases)
 [![License](https://img.shields.io/github/license/bnomei/devana)](https://github.com/bnomei/devana/blob/main/LICENSE)
 [![Discord](https://flat.badgen.net/badge/discord/bnomei?color=7289da&icon=discord&label)](https://discordapp.com/users/bnomei)
