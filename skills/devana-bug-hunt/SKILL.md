@@ -20,6 +20,7 @@ Find the smallest reachable counterexample that violates an invariant, contract,
 ## Operating Rules
 
 - Destination: `.devana/`.
+- `.devana/` reports are append-only unless the user explicitly asks to remove them. Goal scratch paths and verifier git-cleanliness requirements never justify deleting `.devana/`.
 - Static-only: do not run tests, builds, package installs, migrations, services, or network calls.
 - Scheduled use: Codex App Automation or Claude Code `/loop`.
 - Template: read `references/report-template.md` only when writing a report.
